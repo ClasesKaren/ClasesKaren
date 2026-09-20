@@ -6,20 +6,21 @@
   <title>Aventura en Español - Aprende Jugando</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Space+Grotesk:wght@700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #0f172a;
-      --card-bg: #1e293b;
-      --card-border: #334155;
+      --bg-gradient: radial-gradient(circle at 50% 0%, #1e293b 0%, #0b1120 100%);
+      --card-bg: rgba(30, 41, 59, 0.7);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --card-border-hover: #38bdf8;
       --orange: #f97316;
+      --orange-glow: rgba(249, 115, 22, 0.35);
       --green: #10b981;
+      --green-glow: rgba(16, 185, 129, 0.35);
       --blue: #0ea5e9;
-      --purple: #8b5cf6;
-      --yellow: #f59e0b;
-      --red: #ef4444;
+      --yellow: #fbbf24;
       --text: #f8fafc;
-      --muted: #94a3b8;
+      --text-muted: #94a3b8;
     }
 
     * {
@@ -28,21 +29,26 @@
       padding: 0;
       font-family: 'Plus Jakarta Sans', sans-serif;
       user-select: none;
+      -webkit-user-select: none;
     }
 
     body {
-      background: var(--bg);
+      background: var(--bg-gradient);
+      background-attachment: fixed;
       color: var(--text);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+      overflow-x: hidden;
     }
 
+    /* HEADER HUD */
     header {
-      background: rgba(30, 41, 59, 0.8);
-      backdrop-filter: blur(10px);
-      border-bottom: 2px solid var(--card-border);
-      padding: 16px 32px;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 14px 28px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -51,143 +57,235 @@
       z-index: 100;
     }
 
-    .logo {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--orange);
+    .brand {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
       cursor: pointer;
     }
 
-    .score-board {
-      display: flex;
-      gap: 20px;
-      align-items: center;
-      background: var(--bg);
-      padding: 8px 18px;
-      border-radius: 999px;
-      border: 1px solid var(--card-border);
+    .brand-icon {
+      font-size: 1.8rem;
+      animation: floatIcon 3s ease-in-out infinite;
     }
 
-    .score-item {
+    .brand-name {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.45rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #fb923c, #f97316);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
+    }
+
+    .hud-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .timer-badge {
+      background: rgba(14, 165, 233, 0.1);
+      border: 1.5px solid rgba(56, 189, 248, 0.4);
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-family: 'Space Grotesk', monospace;
       font-weight: 700;
+      font-size: 1.05rem;
+      color: #38bdf8;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.15);
+    }
+
+    .stats-badge {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 6px 16px;
+      border-radius: 999px;
+    }
+
+    .stat-node {
       display: flex;
       align-items: center;
       gap: 6px;
+      font-weight: 800;
+      font-size: 0.95rem;
     }
 
     main {
       flex: 1;
       max-width: 1200px;
-      margin: 0 auto;
       width: 100%;
-      padding: 32px 20px;
+      margin: 0 auto;
+      padding: 28px 20px;
     }
 
-    /* VISTA DE LECCIONES (PORTAL) */
+    /* VISTAS */
     .view { display: none; }
-    .view.active { display: block; }
+    .view.active { display: block; animation: fadeIn 0.35s ease; }
 
-    .hero-title {
+    .hero-banner {
       text-align: center;
       margin-bottom: 32px;
     }
 
-    .hero-title h1 {
+    .hero-banner h1 {
       font-family: 'Space Grotesk', sans-serif;
-      font-size: 2.5rem;
+      font-size: 2.6rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
       margin-bottom: 8px;
     }
 
-    .hero-title p {
-      color: var(--muted);
-      font-size: 1.1rem;
+    .hero-banner p {
+      color: var(--text-muted);
+      font-size: 1.15rem;
     }
 
-    .lessons-grid {
+    /* GRID LECCIONES */
+    .lessons-matrix {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
       gap: 20px;
     }
 
-    .lesson-card {
+    .mission-card {
       background: var(--card-bg);
-      border: 2px solid var(--card-border);
+      backdrop-filter: blur(8px);
+      border: 1.5px solid var(--card-border);
       border-radius: 20px;
-      padding: 24px;
+      padding: 22px;
       cursor: pointer;
-      transition: all 0.25s ease;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
       display: flex;
       flex-direction: column;
       gap: 12px;
     }
 
-    .lesson-card:hover {
+    .mission-card:hover {
       transform: translateY(-6px);
-      border-color: var(--orange);
-      box-shadow: 0 12px 30px rgba(249, 115, 22, 0.2);
+      border-color: var(--card-border-hover);
+      box-shadow: 0 16px 32px rgba(14, 165, 233, 0.18);
+      background: rgba(30, 41, 59, 0.9);
     }
 
-    .lesson-badge {
-      font-size: 0.8rem;
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .mission-badge {
+      font-size: 0.75rem;
       font-weight: 800;
+      color: var(--blue);
       text-transform: uppercase;
       letter-spacing: 1px;
-      color: var(--blue);
     }
 
-    .lesson-icon {
+    .mission-icon {
       font-size: 3rem;
+      margin: 6px 0;
     }
 
-    .lesson-name {
+    .mission-title {
       font-size: 1.25rem;
       font-weight: 800;
     }
 
-    .lesson-status {
-      font-size: 0.85rem;
-      color: var(--muted);
+    .mission-footer {
       display: flex;
       align-items: center;
       gap: 6px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--green);
     }
 
-    /* VISTA DE JUEGOS DE LA LECCIÓN */
-    .game-nav {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 24px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-
-    .tab-btn {
-      background: var(--card-bg);
-      border: 2px solid var(--card-border);
-      color: var(--muted);
-      padding: 12px 20px;
-      border-radius: 14px;
+    /* PANTALLA JUEGOS */
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      color: #38bdf8;
+      padding: 8px 16px;
+      border-radius: 12px;
       font-weight: 700;
       cursor: pointer;
+      margin-bottom: 20px;
       transition: all 0.2s;
     }
 
-    .tab-btn.active {
-      background: var(--orange);
-      color: #fff;
-      border-color: var(--orange);
+    .back-btn:hover {
+      background: rgba(14, 165, 233, 0.15);
+      border-color: var(--blue);
     }
 
-    .game-box {
+    .lesson-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .lesson-title-text {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 2rem;
+      font-weight: 800;
+    }
+
+    .game-switcher {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .switch-btn {
       background: var(--card-bg);
-      border: 2px solid var(--card-border);
+      border: 1.5px solid var(--card-border);
+      color: var(--text-muted);
+      padding: 10px 18px;
+      border-radius: 14px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .switch-btn:hover {
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .switch-btn.active {
+      background: var(--orange);
+      border-color: var(--orange);
+      color: #fff;
+      box-shadow: 0 0 15px var(--orange-glow);
+    }
+
+    .arena-container {
+      background: rgba(30, 41, 59, 0.6);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1.5px solid var(--card-border);
       border-radius: 24px;
-      padding: 32px;
-      min-height: 480px;
+      padding: 36px 24px;
+      min-height: 520px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -195,515 +293,1331 @@
       position: relative;
     }
 
-    .back-btn {
-      align-self: flex-start;
-      margin-bottom: 16px;
-      background: none;
-      border: none;
-      color: var(--blue);
-      font-weight: 700;
-      font-size: 1rem;
-      cursor: pointer;
-    }
-
-    /* JUEGO 1: FLASHCARDS */
-    .flashcard-stage {
+    /* JUEGO 1: FLASHCARDS 3D */
+    .fc-stage {
       perspective: 1000px;
       width: 320px;
       height: 380px;
       cursor: pointer;
     }
 
-    .flashcard-inner {
+    .fc-flipper {
       width: 100%;
       height: 100%;
       position: relative;
       transform-style: preserve-3d;
-      transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+      transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
       border-radius: 24px;
     }
 
-    .flashcard-stage.flipped .flashcard-inner {
+    .fc-stage.flipped .fc-flipper {
       transform: rotateY(180deg);
     }
 
-    .card-face {
+    .fc-side {
       position: absolute;
       width: 100%;
       height: 100%;
       backface-visibility: hidden;
       border-radius: 24px;
-      border: 3px solid var(--card-border);
+      border: 2px solid rgba(255, 255, 255, 0.1);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       padding: 24px;
       text-align: center;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
     }
 
-    .card-front {
+    .fc-front {
       background: linear-gradient(145deg, #1e293b, #0f172a);
     }
 
-    .card-back {
+    .fc-back {
       background: linear-gradient(145deg, #0f172a, #1e293b);
       transform: rotateY(180deg);
       border-color: var(--orange);
     }
 
-    .fc-nav {
+    .fc-icon {
+      font-size: 6.5rem;
+      margin-bottom: 16px;
+      filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3));
+    }
+
+    .fc-word-es {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .fc-word-en {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #38bdf8;
+      margin: 12px 0 20px;
+    }
+
+    .fc-controls {
       display: flex;
+      align-items: center;
       gap: 16px;
       margin-top: 24px;
     }
 
-    /* JUEGO 2: TABLERO 21 CARTAS (TRÍOS) */
+    .icon-action-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .icon-action-btn:hover {
+      background: var(--blue);
+      border-color: var(--blue);
+    }
+
+    /* JUEGO 2: TRÍOS IGUALES (21 CARTAS) */
+    .trio-board-wrap {
+      width: 100%;
+      max-width: 820px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
     .trio-grid {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
       gap: 10px;
       width: 100%;
-      max-width: 800px;
+      margin-top: 16px;
     }
 
     .trio-card {
       aspect-ratio: 1;
-      background: var(--bg);
-      border: 2px solid var(--card-border);
-      border-radius: 12px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      border-radius: 14px;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 2rem;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .trio-card:hover:not(.revealed):not(.matched) {
+      transform: translateY(-3px);
+      border-color: var(--blue);
     }
 
     .trio-card.revealed {
       background: #334155;
-      border-color: var(--blue);
+      border-color: #38bdf8;
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
+      transform: scale(1.04);
     }
 
     .trio-card.matched {
-      background: rgba(16, 185, 129, 0.2);
+      background: rgba(16, 185, 129, 0.25);
       border-color: var(--green);
       cursor: default;
       opacity: 0.6;
     }
 
-    /* JUEGO 3: COMPLETAR LA FRASE */
-    .sentence-container {
+    /* JUEGO 3: COMPLETAR 4 FRASES EN CADENA */
+    .fill-sentence-box {
+      width: 100%;
+      max-width: 760px;
       text-align: center;
-      max-width: 650px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
-    .sentence-icon { font-size: 5rem; margin-bottom: 16px; }
-    .sentence-text { font-size: 1.8rem; font-weight: 700; margin-bottom: 24px; }
-    .blank-space { color: var(--orange); border-bottom: 3px dashed var(--orange); padding: 0 10px; }
+    .step-counter {
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: var(--orange);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 12px;
+    }
 
-    .options-row {
+    .sentence-lead-icon {
+      font-size: 5.5rem;
+      margin-bottom: 16px;
+      filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.35));
+    }
+
+    .sentence-stream {
+      font-size: 2.1rem;
+      font-weight: 700;
+      line-height: 1.4;
+      margin-bottom: 32px;
+      min-height: 75px;
+    }
+
+    .pill-slot {
+      display: inline-block;
+      min-width: 140px;
+      padding: 4px 16px;
+      border-bottom: 3px dashed var(--orange);
+      color: var(--orange);
+      transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .pill-slot.filled {
+      border-bottom: 3px solid var(--green);
+      background: rgba(16, 185, 129, 0.25);
+      color: #34d399;
+      border-radius: 10px;
+      transform: scale(1.08);
+    }
+
+    .answer-chips {
       display: flex;
-      gap: 14px;
+      gap: 16px;
       justify-content: center;
       flex-wrap: wrap;
     }
 
-    .opt-btn {
-      background: var(--bg);
-      border: 2px solid var(--card-border);
+    .chip-btn {
+      background: rgba(15, 23, 42, 0.9);
+      border: 2px solid rgba(255, 255, 255, 0.12);
       color: #fff;
-      padding: 12px 24px;
-      border-radius: 14px;
-      font-size: 1.2rem;
-      font-weight: 700;
+      padding: 14px 28px;
+      border-radius: 16px;
+      font-size: 1.25rem;
+      font-weight: 800;
       cursor: pointer;
-      transition: 0.2s;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    .opt-btn:hover { border-color: var(--blue); }
+    .chip-btn:hover {
+      border-color: var(--blue);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(14, 165, 233, 0.25);
+    }
 
-    /* JUEGO 4: UNIR PAREJAS */
-    .match-columns {
+    /* JUEGO 4: UNIR 8 PAREJAS EN 2 RONDAS */
+    .match-arena {
+      width: 100%;
+      max-width: 680px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .match-hud-bar {
       display: flex;
       justify-content: space-between;
-      gap: 40px;
       width: 100%;
-      max-width: 600px;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .match-columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+      width: 100%;
     }
 
     .match-col {
       display: flex;
       flex-direction: column;
-      gap: 16px;
-      flex: 1;
+      gap: 14px;
     }
 
-    .match-node {
-      background: var(--bg);
-      border: 2px solid var(--card-border);
-      padding: 16px;
-      border-radius: 14px;
-      text-align: center;
-      font-weight: 700;
-      font-size: 1.1rem;
+    .match-cell {
+      background: rgba(15, 23, 42, 0.9);
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      height: 74px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       cursor: pointer;
-      transition: 0.2s;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      padding: 0 16px;
     }
 
-    .match-node.selected { border-color: var(--orange); background: rgba(249, 115, 22, 0.15); }
-    .match-node.correct { border-color: var(--green); background: rgba(16, 185, 129, 0.2); pointer-events: none; }
+    .match-cell.icon-cell { font-size: 2.5rem; }
+    .match-cell.word-cell { font-size: 1.25rem; font-weight: 800; }
 
-    /* MENSAJE FLOTANTE (TOAST) */
-    #toast {
+    .match-cell:hover:not(.correct) {
+      border-color: var(--blue);
+      transform: translateY(-2px);
+    }
+
+    .match-cell.selected {
+      border-color: var(--orange);
+      background: rgba(249, 115, 22, 0.25);
+      box-shadow: 0 0 20px var(--orange-glow);
+      transform: scale(1.02);
+    }
+
+    .match-cell.correct {
+      border-color: var(--green);
+      background: rgba(16, 185, 129, 0.25);
+      color: #34d399;
+      pointer-events: none;
+      opacity: 0.85;
+    }
+
+    /* PANTALLA VICTORIA */
+    .victory-box {
+      text-align: center;
+      animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .trophy-bounce {
+      font-size: 6.5rem;
+      margin-bottom: 16px;
+      animation: bounce 1.2s infinite alternate ease-in-out;
+    }
+
+    .victory-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+
+    .time-stat {
+      font-size: 1.45rem;
+      font-weight: 800;
+      color: var(--yellow);
+      margin-bottom: 8px;
+    }
+
+    /* TOAST DINÁMICO */
+    #toastMessage {
       position: fixed;
-      bottom: 24px;
+      bottom: 28px;
       left: 50%;
       transform: translateX(-50%);
-      background: var(--orange);
-      color: white;
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #fff;
       padding: 14px 28px;
       border-radius: 999px;
       font-weight: 800;
-      font-size: 1.1rem;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+      font-size: 1.15rem;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6);
       display: none;
       z-index: 1000;
-      animation: pop 0.3s ease;
+      white-space: nowrap;
     }
 
-    @keyframes pop {
-      0% { transform: translate(-50%, 20px); opacity: 0; }
-      100% { transform: translate(-50%, 0); opacity: 1; }
+    #toastMessage.error {
+      background: linear-gradient(135deg, #f97316, #ea580c);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes bounce {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-12px); }
+    }
+
+    @keyframes floatIcon {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-4px) rotate(4deg); }
+    }
+
+    @media (max-width: 768px) {
+      .trio-grid { grid-template-columns: repeat(4, 1fr); }
+      .sentence-stream { font-size: 1.6rem; }
+      .match-columns { gap: 14px; }
+      .match-cell.word-cell { font-size: 1.05rem; }
     }
   </style>
 </head>
 <body>
 
   <header>
-    <div class="logo" onclick="showPortal()">
-      <span>🏆</span> Aventura en Español
+    <div class="brand" onclick="goToPortal()">
+      <div class="brand-icon">🏆</div>
+      <div class="brand-name">Aventura en Español</div>
     </div>
-    <div class="score-board">
-      <div class="score-item">⭐ <span id="starsCount">0</span></div>
-      <div class="score-item">🔥 <span id="pointsCount">0</span> Pts</div>
+
+    <div class="hud-right">
+      <div class="timer-badge">
+        ⏱️ <span id="clockValue">00:00</span>
+      </div>
+      <div class="stats-badge">
+        <div class="stat-node">⭐ <span id="starCounter">0</span></div>
+        <div class="stat-node">🔥 <span id="pointCounter">0</span> Pts</div>
+      </div>
     </div>
   </header>
 
   <main>
-    <!-- PORTAL CON LAS 23 LECCIONES -->
-    <section id="portalView" class="view active">
-      <div class="hero-title">
+    <!-- VISTA 1: PORTAL DE LAS 23 LECCIONES -->
+    <section id="viewPortal" class="view active">
+      <div class="hero-banner">
         <h1>¡Elige tu Misión de Hoy!</h1>
         <p>Aprende palabras, supera retos y conviértete en un Titán del Español</p>
       </div>
-      <div class="lessons-grid" id="lessonsContainer"></div>
+      <div class="lessons-matrix" id="lessonsGrid"></div>
     </section>
 
-    <!-- PANTALLA DE JUEGOS DE LA LECCIÓN -->
-    <section id="lessonView" class="view">
-      <button class="back-btn" onclick="showPortal()">◀ Volver a todas las lecciones</button>
-      <h2 id="lessonTitle" style="margin-bottom: 16px; font-size: 2rem;">Lección</h2>
+    <!-- VISTA 2: PANTALLA DE JUEGOS DE LA LECCIÓN -->
+    <section id="viewLesson" class="view">
+      <button class="back-btn" onclick="goToPortal()">
+        ◀ Volver a todas las misiones
+      </button>
 
-      <div class="game-nav">
-        <button class="tab-btn active" onclick="switchGame(1)">1. Tarjetas 3D</button>
-        <button class="tab-btn" onclick="switchGame(2)">2. Tríos Iguales (21)</button>
-        <button class="tab-btn" onclick="switchGame(3)">3. Completa la Frase</button>
-        <button class="tab-btn" onclick="switchGame(4)">4. Unir Parejas</button>
+      <div class="lesson-header">
+        <div class="lesson-title-text" id="lessonHeading">Lección</div>
       </div>
 
-      <div class="game-box" id="gameArea"></div>
+      <div class="game-switcher">
+        <button class="switch-btn active" onclick="loadGame(1)">🎴 1. Tarjetas 3D</button>
+        <button class="switch-btn" onclick="loadGame(2)">🧩 2. Tríos Iguales (21)</button>
+        <button class="switch-btn" onclick="loadGame(3)">✍️ 3. Completa 4 Frases</button>
+        <button class="switch-btn" onclick="loadGame(4)">🔗 4. Unir Parejas (8)</button>
+      </div>
+
+      <div class="arena-container" id="gameArena"></div>
     </section>
   </main>
 
-  <div id="toast"></div>
+  <div id="toastMessage"></div>
 
   <script>
-    // BASE DE DATOS DE LAS 23 LECCIONES
-    const LESSONS = [
-      { id: 1, name: "Deportes", icon: "🏀", active: true },
-      { id: 2, name: "Partes de la Casa", icon: "🏡", active: false },
-      { id: 3, name: "Cuerpo Humano", icon: "🏃‍♂️", active: false },
-      { id: 4, name: "Los Animales", icon: "🦁", active: false },
-      { id: 5, name: "Los Colores", icon: "🎨", active: false },
-      { id: 6, name: "Los Números", icon: "🔢", active: false },
-      { id: 7, name: "El Abecedario", icon: "🔤", active: false },
-      { id: 8, name: "Saludos y Presentaciones", icon: "👋", active: false },
-      { id: 9, name: "Cosas de la Cocina", icon: "🍳", active: false },
-      { id: 10, name: "Cosas del Cuarto", icon: "🛏️", active: false },
-      { id: 11, name: "Cosas del Auto", icon: "🚗", active: false },
-      { id: 12, name: "Cosas del Colegio", icon: "🎒", active: false },
-      { id: 13, name: "Cosas del Fútbol", icon: "⚽", active: false },
-      { id: 14, name: "Cosas del Baloncesto", icon: "🏀", active: false },
-      { id: 15, name: "Fútbol Americano", icon: "🏈", active: false },
-      { id: 16, name: "Cosas del Voleibol", icon: "🏐", active: false },
-      { id: 17, name: "Cosas de la Música", icon: "🎵", active: false },
-      { id: 18, name: "Viajar en Avión", icon: "✈️", active: false },
-      { id: 19, name: "Viajar en Bus", icon: "🚌", active: false },
-      { id: 20, name: "El Supermercado", icon: "🛒", active: false },
-      { id: 21, name: "Tienda de Ropa", icon: "👕", active: false },
-      { id: 22, name: "Ir al Cine", icon: "🍿", active: false },
-      { id: 23, name: "Cocinar", icon: "👨‍🍳", active: false }
-    ];
+    // BASE DE DATOS COMPLETA: 23 LECCIONES CON 8 ÍTEMS Y 4 FRASES CADA UNA
+    const COMPREHENSIVE_DATABASE = {
+      1: {
+        name: "Deportes",
+        icon: "🏀",
+        items: [
+          { es: "El Balón", en: "The Ball", icon: "⚽" },
+          { es: "La Canasta", en: "The Hoop", icon: "🥅" },
+          { es: "El Baloncesto", en: "Basketball", icon: "🏀" },
+          { es: "El Fútbol Americano", en: "Football", icon: "🏈" },
+          { es: "El Estadio", en: "The Stadium", icon: "🏟️" },
+          { es: "El Jugador", en: "The Player", icon: "🏃‍♂️" },
+          { es: "El Trofeo", en: "The Trophy", icon: "🏆" },
+          { es: "La Medalla", en: "The Medal", icon: "🏅" }
+        ],
+        sentences: [
+          { icon: "🏀", before: "Chaz lanza el balón a la ", after: ".", answer: "canasta", opts: ["cuchara", "canasta", "ventana"] },
+          { icon: "🏃‍♂️", before: "El ", after: " corre muy rápido por la cancha.", answer: "jugador", opts: ["jugador", "sofá", "techo"] },
+          { icon: "🏆", before: "El campeón levanta el gran ", after: " dorado.", answer: "trofeo", opts: ["zapato", "trofeo", "plato"] },
+          { icon: "🏟️", before: "Toda la familia apoya al equipo en el ", after: ".", answer: "estadio", opts: ["estadio", "cuaderno", "árbol"] }
+        ]
+      },
+      2: {
+        name: "Partes de la Casa",
+        icon: "🏡",
+        items: [
+          { es: "La Casa", en: "The House", icon: "🏠" },
+          { es: "La Puerta", en: "The Door", icon: "🚪" },
+          { es: "La Ventana", en: "The Window", icon: "🪟" },
+          { es: "El Techo", en: "The Roof", icon: "🛖" },
+          { es: "El Jardín", en: "The Garden", icon: "🌳" },
+          { es: "La Sala", en: "Living Room", icon: "🛋️" },
+          { es: "La Cama", en: "The Bed", icon: "🛏️" },
+          { es: "La Cocina", en: "The Kitchen", icon: "🍳" }
+        ],
+        sentences: [
+          { icon: "🚪", before: "Para entrar a mi casa abro la ", after: ".", answer: "puerta", opts: ["puerta", "cama", "pelota"] },
+          { icon: "🪟", before: "Miro la lluvia caer a través de la ", after: ".", answer: "ventana", opts: ["cuchara", "ventana", "zapato"] },
+          { icon: "🛏️", before: "Por la noche duermo feliz en mi suave ", after: ".", answer: "cama", opts: ["cama", "puerta", "techo"] },
+          { icon: "🌳", before: "Las flores y los árboles están en el ", after: ".", answer: "jardín", opts: ["jardín", "armario", "estadio"] }
+        ]
+      },
+      3: {
+        name: "Cuerpo Humano",
+        icon: "🏃‍♂️",
+        items: [
+          { es: "La Cabeza", en: "The Head", icon: "🗣️" },
+          { es: "Los Ojos", en: "The Eyes", icon: "👀" },
+          { es: "La Mano", en: "The Hand", icon: "✋" },
+          { es: "El Pie", en: "The Foot", icon: "🦶" },
+          { es: "La Pierna", en: "The Leg", icon: "🦵" },
+          { es: "La Oreja", en: "The Ear", icon: "👂" },
+          { es: "La Boca", en: "The Mouth", icon: "👄" },
+          { es: "La Nariz", en: "The Nose", icon: "👃" }
+        ],
+        sentences: [
+          { icon: "👀", before: "Miro el partido con mis ", after: ".", answer: "ojos", opts: ["manos", "ojos", "pies"] },
+          { icon: "✋", before: "Saludo a mis amigos levantando la ", after: ".", answer: "mano", opts: ["mano", "nariz", "cama"] },
+          { icon: "🦶", before: "Pateo el balón de fútbol con el ", after: ".", answer: "pie", opts: ["oreja", "pie", "boca"] },
+          { icon: "👂", before: "Escucho las instrucciones con la ", after: ".", answer: "oreja", opts: ["oreja", "puerta", "techo"] }
+        ]
+      },
+      4: {
+        name: "Los Animales",
+        icon: "🦁",
+        items: [
+          { es: "El Perro", en: "The Dog", icon: "🐶" },
+          { es: "El Gato", en: "The Cat", icon: "🐱" },
+          { es: "El León", en: "The Lion", icon: "🦁" },
+          { es: "El Caballo", en: "The Horse", icon: "🐴" },
+          { es: "El Águila", en: "The Eagle", icon: "🦅" },
+          { es: "El Pez", en: "The Fish", icon: "🐟" },
+          { es: "El Mono", en: "The Monkey", icon: "🐵" },
+          { es: "El Tigre", en: "The Tiger", icon: "🐯" }
+        ],
+        sentences: [
+          { icon: "🐶", before: "El mejor amigo del niño es el ", after: ".", answer: "perro", opts: ["perro", "pez", "león"] },
+          { icon: "🦁", before: "El rey de la selva es el fuerte ", after: ".", answer: "león", opts: ["gato", "león", "caballo"] },
+          { icon: "🐟", before: "En el agua limpia nada el pequeño ", after: ".", answer: "pez", opts: ["pez", "mono", "tigre"] },
+          { icon: "🦅", before: "Vuela muy alto por el cielo el ", after: ".", answer: "águila", opts: ["perro", "águila", "gato"] }
+        ]
+      },
+      5: {
+        name: "Los Colores",
+        icon: "🎨",
+        items: [
+          { es: "El Rojo", en: "Red", icon: "🔴" },
+          { es: "El Azul", en: "Blue", icon: "🔵" },
+          { es: "El Amarillo", en: "Yellow", icon: "🟡" },
+          { es: "El Verde", en: "Green", icon: "🟢" },
+          { es: "El Naranja", en: "Orange", icon: "🟠" },
+          { es: "El Morado", en: "Purple", icon: "🟣" },
+          { es: "El Blanco", en: "White", icon: "⚪" },
+          { es: "El Negro", en: "Black", icon: "⚫" }
+        ],
+        sentences: [
+          { icon: "🟢", before: "El césped de la cancha es de color ", after: ".", answer: "verde", opts: ["rojo", "verde", "morado"] },
+          { icon: "🔵", before: "El cielo despejado es de color ", after: ".", answer: "azul", opts: ["azul", "negro", "naranja"] },
+          { icon: "🟡", before: "El sol brillante brilla de color ", after: ".", answer: "amarillo", opts: ["blanco", "amarillo", "rojo"] },
+          { icon: "🔴", before: "La manzana dulce es de color ", after: ".", answer: "rojo", opts: ["verde", "rojo", "azul"] }
+        ]
+      },
+      6: {
+        name: "Los Números",
+        icon: "🔢",
+        items: [
+          { es: "El Uno", en: "One", icon: "1️⃣" },
+          { es: "El Dos", en: "Two", icon: "2️⃣" },
+          { es: "El Tres", en: "Three", icon: "3️⃣" },
+          { es: "El Cuatro", en: "Four", icon: "4️⃣" },
+          { es: "El Cinco", en: "Five", icon: "5️⃣" },
+          { es: "El Seis", en: "Six", icon: "6️⃣" },
+          { es: "El Siete", en: "Seven", icon: "7️⃣" },
+          { es: "El Diez", en: "Ten", icon: "🔟" }
+        ],
+        sentences: [
+          { icon: "🔟", before: "La camiseta del mejor atleta lleva el número ", after: ".", answer: "diez", opts: ["dos", "diez", "uno"] },
+          { icon: "1️⃣", before: "El campeón siempre llega en el puesto ", after: ".", answer: "uno", opts: ["cinco", "cuatro", "uno"] },
+          { icon: "2️⃣", before: "Para caminar tengo ", after: " pies.", answer: "dos", opts: ["dos", "siete", "tres"] },
+          { icon: "5️⃣", before: "En cada mano tengo ", after: " dedos.", answer: "cinco", opts: ["seis", "cinco", "diez"] }
+        ]
+      },
+      7: {
+        name: "El Abecedario",
+        icon: "🔤",
+        items: [
+          { es: "La Letra A", en: "Letter A", icon: "🅰️" },
+          { es: "La Letra B", en: "Letter B", icon: "🅱️" },
+          { es: "La Letra C", en: "Letter C", icon: "🔤" },
+          { es: "El Libro", en: "The Book", icon: "📖" },
+          { es: "El Lápiz", en: "The Pencil", icon: "✏️" },
+          { es: "La Palabra", en: "The Word", icon: "💬" },
+          { es: "La Letra D", en: "Letter D", icon: "🔠" },
+          { es: "Aprender", en: "To Learn", icon: "🧠" }
+        ],
+        sentences: [
+          { icon: "✏️", before: "Escribo las nuevas palabras con el ", after: ".", answer: "lápiz", opts: ["lápiz", "zapato", "balón"] },
+          { icon: "📖", before: "Leo una historia fantástica en el ", after: ".", answer: "libro", opts: ["libro", "reloj", "plato"] },
+          { icon: "🧠", before: "Con esfuerzo y ganas voy a ", after: " español.", answer: "aprender", opts: ["dormir", "aprender", "correr"] },
+          { icon: "💬", before: "Cada día practico una nueva ", after: ".", answer: "palabra", opts: ["palabra", "cama", "puerta"] }
+        ]
+      },
+      8: {
+        name: "Saludos y Presentaciones",
+        icon: "👋",
+        items: [
+          { es: "¡Hola!", en: "Hello!", icon: "👋" },
+          { es: "Buenos Días", en: "Good Morning", icon: "🌅" },
+          { es: "Buenas Tardes", en: "Good Afternoon", icon: "☀️" },
+          { es: "Buenas Noches", en: "Good Night", icon: "🌙" },
+          { es: "¡Adiós!", en: "Goodbye!", icon: "🙋‍♂️" },
+          { es: "Amigo", en: "Friend", icon: "🤝" },
+          { es: "Gracias", en: "Thank you", icon: "🙏" },
+          { es: "Por Favor", en: "Please", icon: "✨" }
+        ],
+        sentences: [
+          { icon: "👋", before: "Cuando llego a la clase digo: ¡", after: "!", answer: "hola", opts: ["adiós", "hola", "noche"] },
+          { icon: "🌅", before: "Al despertar por la mañana digo: ¡Buenos ", after: "!", answer: "días", opts: ["días", "tardes", "noches"] },
+          { icon: "🙏", before: "Cuando alguien me ayuda siempre digo: ", after: ".", answer: "gracias", opts: ["gracias", "hola", "adiós"] },
+          { icon: "🙋‍♂️", before: "Al terminar el entrenamiento me despido: ¡", after: "!", answer: "adiós", opts: ["hola", "por favor", "adiós"] }
+        ]
+      },
+      9: {
+        name: "Cosas de la Cocina",
+        icon: "🍳",
+        items: [
+          { es: "La Sartén", en: "Frying Pan", icon: "🍳" },
+          { es: "El Plato", en: "The Plate", icon: "🍽️" },
+          { es: "El Vaso", en: "The Glass", icon: "🥛" },
+          { es: "La Cuchara", en: "The Spoon", icon: "🥄" },
+          { es: "El Tenedor", en: "The Fork", icon: "🍴" },
+          { es: "El Cuchillo", en: "The Knife", icon: "🔪" },
+          { es: "La Olla", en: "Cooking Pot", icon: "🍲" },
+          { es: "La Taza", en: "The Cup", icon: "☕" }
+        ],
+        sentences: [
+          { icon: "🥛", before: "Bebo agua bien fresca en un ", after: ".", answer: "vaso", opts: ["tenedor", "vaso", "cuchillo"] },
+          { icon: "🥄", before: "Tomo la sopa caliente con la ", after: ".", answer: "cuchara", opts: ["cuchara", "vaso", "sartén"] },
+          { icon: "🍽️", before: "La comida rica se sirve en el ", after: ".", answer: "plato", opts: ["plato", "cama", "puerta"] },
+          { icon: "🍳", before: "Preparo un huevo frito en la ", after: ".", answer: "sartén", opts: ["sartén", "taza", "cuchara"] }
+        ]
+      },
+      10: {
+        name: "Cosas del Cuarto",
+        icon: "🛏️",
+        items: [
+          { es: "La Cama", en: "The Bed", icon: "🛏️" },
+          { es: "La Almohada", en: "The Pillow", icon: "🛌" },
+          { es: "La Lámpara", en: "The Lamp", icon: "💡" },
+          { es: "El Armario", en: "The Closet", icon: "🚪" },
+          { es: "El Reloj", en: "The Clock", icon: "⏰" },
+          { es: "El Juguete", en: "The Toy", icon: "🧸" },
+          { es: "La Silla", en: "The Chair", icon: "🪑" },
+          { es: "La Ventana", en: "The Window", icon: "🪟" }
+        ],
+        sentences: [
+          { icon: "🛏️", before: "Por la noche descanso en mi cómoda ", after: ".", answer: "cama", opts: ["cama", "lámpara", "reloj"] },
+          { icon: "💡", before: "Para leer en la noche enciendo la ", after: ".", answer: "lámpara", opts: ["silla", "lámpara", "armario"] },
+          { icon: "🛌", before: "Apoyo mi cabeza en la suave ", after: ".", answer: "almohada", opts: ["almohada", "ventana", "cuchara"] },
+          { icon: "⏰", before: "Para despertar temprano miro el ", after: ".", answer: "reloj", opts: ["reloj", "juguete", "cama"] }
+        ]
+      },
+      11: {
+        name: "Cosas del Auto",
+        icon: "🚗",
+        items: [
+          { es: "El Volante", en: "Steering Wheel", icon: "🛞" },
+          { es: "La Rueda", en: "The Wheel", icon: "⚙️" },
+          { es: "La Llave", en: "The Key", icon: "🔑" },
+          { es: "El Cinturón", en: "Seatbelt", icon: "🔒" },
+          { es: "El Semáforo", en: "Traffic Light", icon: "🚦" },
+          { es: "La Gasolina", en: "Gasoline", icon: "⛽" },
+          { es: "La Carretera", en: "The Road", icon: "🛣️" },
+          { es: "El Espejo", en: "The Mirror", icon: "🪞" }
+        ],
+        sentences: [
+          { icon: "🔒", before: "Antes de arrancar me pongo el ", after: " de seguridad.", answer: "cinturón", opts: ["cinturón", "volante", "espejo"] },
+          { icon: "🚦", before: "Cuando la luz está en rojo, el auto se ", after: ".", answer: "detiene", opts: ["detiene", "duerme", "come"] },
+          { icon: "🛞", before: "El conductor maneja el auto con el ", after: ".", answer: "volante", opts: ["volante", "semáforo", "puerta"] },
+          { icon: "⛽", before: "Para que el motor funcione cargamos ", after: ".", answer: "gasolina", opts: ["agua", "gasolina", "leche"] }
+        ]
+      },
+      12: {
+        name: "Cosas del Colegio",
+        icon: "🎒",
+        items: [
+          { es: "La Mochila", en: "Backpack", icon: "🎒" },
+          { es: "El Cuaderno", en: "Notebook", icon: "📓" },
+          { es: "La Regla", en: "Ruler", icon: "📏" },
+          { es: "La Tijera", en: "Scissors", icon: "✂️" },
+          { es: "El Profesor", en: "Teacher", icon: "👨‍🏫" },
+          { es: "La Pizarra", en: "Blackboard", icon: "📋" },
+          { es: "El Borrador", en: "Eraser", icon: "🧹" },
+          { es: "El Recreo", en: "Recess", icon: "🔔" }
+        ],
+        sentences: [
+          { icon: "🎒", before: "Guardo mis libros dentro de la ", after: ".", answer: "mochila", opts: ["mochila", "regla", "tijera"] },
+          { icon: "📓", before: "Anoto mis ejercicios de español en el ", after: ".", answer: "cuaderno", opts: ["cuaderno", "recreo", "pizarra"] },
+          { icon: "👨‍🏫", before: "El ", after: " explica la clase con entusiasmo.", answer: "profesor", opts: ["borrador", "profesor", "zapato"] },
+          { icon: "🔔", before: "Cuando suena la campana salimos al ", after: ".", answer: "recreo", opts: ["recreo", "cuaderno", "mochila"] }
+        ]
+      },
+      13: {
+        name: "Cosas del Fútbol",
+        icon: "⚽",
+        items: [
+          { es: "El Balón", en: "Soccer Ball", icon: "⚽" },
+          { es: "La Portería", en: "The Goal", icon: "🥅" },
+          { es: "El Gol", en: "The Goal!", icon: "🎉" },
+          { es: "El Árbitro", en: "Referee", icon: "🧑‍⚖️" },
+          { es: "La Tarjeta Roja", en: "Red Card", icon: "🟥" },
+          { es: "La Camiseta", en: "Jersey", icon: "👕" },
+          { es: "Los Guantes", en: "Gloves", icon: "🧤" },
+          { es: "El Silbato", en: "Whistle", icon: "📢" }
+        ],
+        sentences: [
+          { icon: "🎉", before: "¡El delantero patea fuerte y anota un ", after: "!", answer: "gol", opts: ["guante", "gol", "árbitro"] },
+          { icon: "🥅", before: "El arquero protege su ", after: ".", answer: "portería", opts: ["portería", "camiseta", "silbato"] },
+          { icon: "🧤", before: "Para atajar los balones el arquero usa ", after: ".", answer: "guantes", opts: ["guantes", "tarjetas", "gorras"] },
+          { icon: "📢", before: "El árbitro finaliza el partido con su ", after: ".", answer: "silbato", opts: ["silbato", "balón", "portería"] }
+        ]
+      },
+      14: {
+        name: "Cosas del Baloncesto",
+        icon: "🏀",
+        items: [
+          { es: "La Canasta", en: "The Hoop", icon: "🥅" },
+          { es: "El Balón Naranja", en: "Basketball", icon: "🏀" },
+          { es: "El Drible", en: "Dribble", icon: "⚡" },
+          { es: "El Tablero", en: "Backboard", icon: "🎯" },
+          { es: "El Triple", en: "Three-pointer", icon: "3️⃣" },
+          { es: "Los Tenis", en: "Sneakers", icon: "👟" },
+          { es: "El Pase", en: "The Pass", icon: "🤝" },
+          { es: "El Reloj", en: "Shot Clock", icon: "⏰" }
+        ],
+        sentences: [
+          { icon: "🥅", before: "Chaz dribla rápido y encesta en la ", after: ".", answer: "canasta", opts: ["canasta", "pizarra", "mochila"] },
+          { icon: "🏀", before: "En la duela botamos el ", after: " naranja.", answer: "balón", opts: ["balón", "reloj", "pase"] },
+          { icon: "3️⃣", before: "Desde lejos lanzó el tiro y anotó un ", after: ".", answer: "triple", opts: ["triple", "tenis", "tablero"] },
+          { icon: "👟", before: "Para saltar y no resbalar uso buenos ", after: ".", answer: "tenis", opts: ["tenis", "gorros", "platos"] }
+        ]
+      },
+      15: {
+        name: "Fútbol Americano",
+        icon: "🏈",
+        items: [
+          { es: "El Balón Ovalado", en: "Football", icon: "🏈" },
+          { es: "El Casco", en: "Helmet", icon: "⛑️" },
+          { es: "El Touchdown", en: "Touchdown!", icon: "🙌" },
+          { es: "El Pase Largo", en: "Long Pass", icon: "🎯" },
+          { es: "El Corredor", en: "Running Back", icon: "🏃‍♂️" },
+          { es: "Las Yardas", en: "Yards", icon: "📏" },
+          { es: "El Entrenador", en: "Coach", icon: "📋" },
+          { es: "Los Guantes", en: "Receiver Gloves", icon: "🧤" }
+        ],
+        sentences: [
+          { icon: "🙌", before: "¡Atrapa el pase en la zona y anota un ", after: "!", answer: "touchdown", opts: ["touchdown", "pelota", "guante"] },
+          { icon: "⛑️", before: "Para proteger la cabeza los jugadores usan ", after: ".", answer: "casco", opts: ["casco", "gorra", "reloj"] },
+          { icon: "🏈", before: "El quarterback lanza el ", after: " ovalado.", answer: "balón", opts: ["balón", "árbol", "plato"] },
+          { icon: "🏃‍♂️", before: "El ", after: " avanza muchas yardas hacia la meta.", answer: "corredor", opts: ["corredor", "entrenador", "árbitro"] }
+        ]
+      },
+      16: {
+        name: "Cosas del Voleibol",
+        icon: "🏐",
+        items: [
+          { es: "El Balón Blanco", en: "Volleyball", icon: "🏐" },
+          { es: "La Red Alta", en: "The Net", icon: "🥅" },
+          { es: "El Salto", en: "The Jump", icon: "🦘" },
+          { es: "El Remate", en: "Spike", icon: "💥" },
+          { es: "La Arena", en: "Beach Sand", icon: "🏖️" },
+          { es: "El Bloqueo", en: "Block", icon: "🛡️" },
+          { es: "El Silbato", en: "Whistle", icon: "📢" },
+          { es: "El Punto", en: "The Point", icon: "💯" }
+        ],
+        sentences: [
+          { icon: "🥅", before: "El balón debe pasar por encima de la ", after: ".", answer: "red", opts: ["red", "sartén", "cama"] },
+          { icon: "💥", before: "Con un salto alto el jugador hace un gran ", after: ".", answer: "remate", opts: ["remate", "pase", "bloqueo"] },
+          { icon: "🏖️", before: "En la playa jugamos voleibol sobre la ", after: ".", answer: "arena", opts: ["arena", "nube", "carretera"] },
+          { icon: "🏐", before: "Golpeamos con las manos el ", after: " blanco.", answer: "balón", opts: ["balón", "silbato", "suelo"] }
+        ]
+      },
+      17: {
+        name: "Cosas de la Música",
+        icon: "🎵",
+        items: [
+          { es: "La Guitarra", en: "Guitar", icon: "🎸" },
+          { es: "El Tambor", en: "Drum", icon: "🥁" },
+          { es: "El Piano", en: "Piano", icon: "🎹" },
+          { es: "La Trompeta", en: "Trumpet", icon: "🎺" },
+          { es: "El Micrófono", en: "Microphone", icon: "🎤" },
+          { es: "La Canción", en: "Song", icon: "🎶" },
+          { es: "El Ritmo", en: "Rhythm", icon: "🕺" },
+          { es: "El Violín", en: "Violin", icon: "🎻" }
+        ],
+        sentences: [
+          { icon: "🥁", before: "Toco con ritmo fuerte y alegre el ", after: ".", answer: "tambor", opts: ["tambor", "lápiz", "cuaderno"] },
+          { icon: "🎸", before: "Hago sonar las cuerdas de la ", after: ".", answer: "guitarra", opts: ["guitarra", "trompeta", "micrófono"] },
+          { icon: "🎤", before: "El cantante canta frente al ", after: ".", answer: "micrófono", opts: ["micrófono", "piano", "tambor"] },
+          { icon: "🎶", before: "Todos bailan al compás de la hermosa ", after: ".", answer: "canción", opts: ["canción", "mesa", "puerta"] }
+        ]
+      },
+      18: {
+        name: "Viajar en Avión",
+        icon: "✈️",
+        items: [
+          { es: "El Avión", en: "Airplane", icon: "✈️" },
+          { es: "La Maleta", en: "Suitcase", icon: "🧳" },
+          { es: "El Pasaporte", en: "Passport", icon: "🛂" },
+          { es: "El Piloto", en: "Pilot", icon: "👨‍✈️" },
+          { es: "Las Nubes", en: "Clouds", icon: "☁️" },
+          { es: "El Boleto", en: "Ticket", icon: "🎫" },
+          { es: "El Asiento", en: "Seat", icon: "💺" },
+          { es: "El Aeropuerto", en: "Airport", icon: "🏢" }
+        ],
+        sentences: [
+          { icon: "✈️", before: "Para viajar a otro país vuelo en un ", after: ".", answer: "avión", opts: ["avión", "árbol", "cocina"] },
+          { icon: "🧳", before: "Guardo mi ropa de viaje en la ", after: ".", answer: "maleta", opts: ["maleta", "nube", "asiento"] },
+          { icon: "👨‍✈️", before: "El ", after: " maneja el avión de forma segura.", answer: "piloto", opts: ["piloto", "boleto", "pasaporte"] },
+          { icon: "🛂", before: "En el aeropuerto presento mi ", after: ".", answer: "pasaporte", opts: ["pasaporte", "maleta", "asiento"] }
+        ]
+      },
+      19: {
+        name: "Viajar en Bus",
+        icon: "🚌",
+        items: [
+          { es: "El Autobús", en: "The Bus", icon: "🚌" },
+          { es: "La Parada", en: "Bus Stop", icon: "🚏" },
+          { es: "El Conductor", en: "Driver", icon: "👨‍💼" },
+          { es: "La Calle", en: "The Street", icon: "🛣️" },
+          { es: "La Ciudad", en: "The City", icon: "🏙️" },
+          { es: "El Pasaje", en: "Ticket", icon: "🎟️" },
+          { es: "La Ventana", en: "The Window", icon: "🪟" },
+          { es: "La Mochila", en: "Bag", icon: "🎒" }
+        ],
+        sentences: [
+          { icon: "🚌", before: "Espero en la parada para subir al ", after: ".", answer: "autobús", opts: ["autobús", "avión", "barco"] },
+          { icon: "🚏", before: "Los pasajeros hacen fila en la ", after: " del bus.", answer: "parada", opts: ["parada", "mochila", "ventana"] },
+          { icon: "👨‍💼", before: "El ", after: " frena con cuidado en cada esquina.", answer: "conductor", opts: ["conductor", "pasaje", "calle"] },
+          { icon: "🏙️", before: "El autobús recorre las calles de la gran ", after: ".", answer: "ciudad", opts: ["ciudad", "nube", "cama"] }
+        ]
+      },
+      20: {
+        name: "El Supermercado",
+        icon: "🛒",
+        items: [
+          { es: "El Carrito", en: "Cart", icon: "🛒" },
+          { es: "La Manzana", en: "Apple", icon: "🍎" },
+          { es: "La Leche", en: "Milk", icon: "🥛" },
+          { es: "El Pan", en: "Bread", icon: "🍞" },
+          { es: "El Dinero", en: "Money", icon: "💵" },
+          { es: "La Caja", en: "Cash Register", icon: "🧾" },
+          { es: "La Bolsa", en: "Bag", icon: "🛍️" },
+          { es: "El Queso", en: "Cheese", icon: "🧀" }
+        ],
+        sentences: [
+          { icon: "🛒", before: "Pongo las frutas frescas dentro del ", after: ".", answer: "carrito", opts: ["carrito", "zapato", "gorra"] },
+          { icon: "🍞", before: "En la panadería compramos rico ", after: " caliente.", answer: "pan", opts: ["pan", "dinero", "caja"] },
+          { icon: "🍎", before: "Para una merienda saludable elijo una ", after: ".", answer: "manzana", opts: ["manzana", "leche", "bolsa"] },
+          { icon: "🧾", before: "Pagamos todas las compras en la ", after: ".", answer: "caja", opts: ["caja", "cama", "mochila"] }
+        ]
+      },
+      21: {
+        name: "Tienda de Ropa",
+        icon: "👕",
+        items: [
+          { es: "La Camisa", en: "Shirt", icon: "👕" },
+          { es: "El Pantalón", en: "Pants", icon: "👖" },
+          { es: "Los Zapatos", en: "Shoes", icon: "👟" },
+          { es: "La Gorra", en: "Cap", icon: "🧢" },
+          { es: "El Abrigo", en: "Coat", icon: "🧥" },
+          { es: "El Espejo", en: "Mirror", icon: "🪞" },
+          { es: "La Talla", en: "Size", icon: "🏷️" },
+          { es: "Los Calcetines", en: "Socks", icon: "🧦" }
+        ],
+        sentences: [
+          { icon: "👟", before: "Para correr y jugar me pongo mis ", after: ".", answer: "zapatos", opts: ["zapatos", "sartenes", "relojes"] },
+          { icon: "🧢", before: "Para protegerme del sol me pongo la ", after: ".", answer: "gorra", opts: ["gorra", "abrigo", "camisa"] },
+          { icon: "🧥", before: "Cuando hace mucho frío me pongo un buen ", after: ".", answer: "abrigo", opts: ["abrigo", "pantalón", "espejo"] },
+          { icon: "🪞", before: "Miro cómo me queda la ropa en el ", after: ".", answer: "espejo", opts: ["espejo", "calcetines", "talla"] }
+        ]
+      },
+      22: {
+        name: "Ir al Cine",
+        icon: "🍿",
+        items: [
+          { es: "Las Palomitas", en: "Popcorn", icon: "🍿" },
+          { es: "La Película", en: "Movie", icon: "🎬" },
+          { es: "La Pantalla", en: "Big Screen", icon: "📺" },
+          { es: "La Entrada", en: "Ticket", icon: "🎟️" },
+          { es: "El Refresco", en: "Soda", icon: "🥤" },
+          { es: "Las Gafas 3D", en: "3D Glasses", icon: "👓" },
+          { es: "La Butaca", en: "Seat", icon: "💺" },
+          { es: "El Sonido", en: "Sound", icon: "🔊" }
+        ],
+        sentences: [
+          { icon: "🍿", before: "Mientras veo la película como ricas ", after: ".", answer: "palomitas", opts: ["palomitas", "piedras", "hojas"] },
+          { icon: "🎬", before: "Comienza la emocionante ", after: " en el cine.", answer: "película", opts: ["película", "entrada", "butaca"] },
+          { icon: "👓", before: "Para ver los efectos uso mis ", after: " especiales.", answer: "gafas", opts: ["gafas", "palomitas", "pantalla"] },
+          { icon: "🎟️", before: "Antes de entrar a la sala presento mi ", after: ".", answer: "entrada", opts: ["entrada", "refresco", "sonido"] }
+        ]
+      },
+      23: {
+        name: "Cocinar",
+        icon: "👨‍🍳",
+        items: [
+          { es: "El Chef", en: "The Chef", icon: "👨‍🍳" },
+          { es: "La Olla", en: "Cooking Pot", icon: "🍲" },
+          { es: "La Receta", en: "Recipe", icon: "📜" },
+          { es: "El Fuego", en: "Fire", icon: "🔥" },
+          { es: "La Sal", en: "Salt", icon: "🧂" },
+          { es: "El Pastel", en: "Cake", icon: "🎂" },
+          { es: "El Delantal", en: "Apron", icon: "🦺" },
+          { es: "La Cuchara", en: "Spoon", icon: "🥄" }
+        ],
+        sentences: [
+          { icon: "🍲", before: "El cocinero prepara una rica sopa en la ", after: ".", answer: "olla", opts: ["olla", "cama", "pelota"] },
+          { icon: "🎂", before: "Para el cumpleaños horneamos un delicioso ", after: ".", answer: "pastel", opts: ["pastel", "fuego", "receta"] },
+          { icon: "🦺", before: "Para no ensuciarme la ropa me pongo el ", after: ".", answer: "delantal", opts: ["delantal", "sal", "chef"] },
+          { icon: "📜", before: "Seguimos todos los pasos leyendo la ", after: ".", answer: "receta", opts: ["receta", "cuchara", "olla"] }
+        ]
+      }
+    };
 
-    // DATOS LECCIÓN 1: DEPORTES
-    const SPORTS_DATA = [
-      { es: "El Balón", en: "The Ball", icon: "⚽" },
-      { es: "La Canasta", en: "The Hoop", icon: "🏀" },
-      { es: "El Fútbol Americano", en: "Football", icon: "🏈" },
-      { es: "El Campo", en: "The Field", icon: "🏟️" },
-      { es: "El Jugador", en: "The Player", icon: "🏃" },
-      { es: "El Trofeo", en: "The Trophy", icon: "🏆" },
-      { es: "La Medalla", en: "The Medal", icon: "🏅" }
-    ];
-
+    // VARIABLES DE ESTADO
     let currentScore = 0;
     let currentStars = 0;
-    let activeLesson = 1;
-    let currentGame = 1;
+    let currentActiveLesson = 1;
+    let currentActiveGame = 1;
 
-    function init() {
-      renderPortal();
+    // CRONÓMETRO AMIGABLE
+    let timerTotalSeconds = 0;
+    let timerHandle = null;
+
+    function resetTimer() {
+      if (timerHandle) clearInterval(timerHandle);
+      timerTotalSeconds = 0;
+      refreshTimerHUD();
+      timerHandle = setInterval(() => {
+        timerTotalSeconds++;
+        refreshTimerHUD();
+      }, 1000);
     }
 
-    function renderPortal() {
-      const container = document.getElementById('lessonsContainer');
-      container.innerHTML = LESSONS.map(l => `
-        <div class="lesson-card" onclick="openLesson(${l.id})">
-          <div class="lesson-badge">Misión #${l.id}</div>
-          <div class="lesson-icon">${l.icon}</div>
-          <div class="lesson-name">${l.name}</div>
-          <div class="lesson-status">${l.id === 1 ? '🔥 ¡Disponible para jugar!' : '🔒 Próximamente'}</div>
-        </div>
-      `).join('');
+    function haltTimer() {
+      if (timerHandle) clearInterval(timerHandle);
     }
 
-    function showPortal() {
-      document.getElementById('portalView').classList.add('active');
-      document.getElementById('lessonView').classList.remove('active');
+    function refreshTimerHUD() {
+      const m = Math.floor(timerTotalSeconds / 60).toString().padStart(2, '0');
+      const s = (timerTotalSeconds % 60).toString().padStart(2, '0');
+      document.getElementById('clockValue').innerText = `${m}:${s}`;
     }
 
-    function openLesson(id) {
-      if (id !== 1) {
-        showToast("¡Esta lección se desbloqueará pronto! Prueba la Lección 1.");
-        return;
+    // AUDIO CON SÍNTESIS DE VOZ NATIVA
+    function pronounceWord(text) {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = 'es-ES';
+        utter.rate = 0.9;
+        window.speechSynthesis.speak(utter);
       }
-      activeLesson = id;
-      document.getElementById('portalView').classList.remove('active');
-      document.getElementById('lessonView').classList.add('active');
-      document.getElementById('lessonTitle').innerText = `Lección ${id}: Deportes 🏀`;
-      switchGame(1);
     }
 
-    function switchGame(num) {
-      currentGame = num;
-      document.querySelectorAll('.tab-btn').forEach((btn, idx) => {
-        btn.classList.toggle('active', idx === (num - 1));
+    // FEEDBACK SONORO SINTETIZADO (WEB AUDIO API)
+    function playAudioChime(type) {
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        if (type === 'success') {
+          osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+          osc.frequency.exponentialRampToValueAtTime(783.99, audioCtx.currentTime + 0.15); // G5
+          gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.35);
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.35);
+        } else if (type === 'fanfare') {
+          osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+          osc.frequency.setValueAtTime(554.37, audioCtx.currentTime + 0.1);
+          osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.2);
+          gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.6);
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.6);
+        }
+      } catch (e) {
+        // En navegadores que restrinjan audio antes de interacción
+      }
+    }
+
+    // TOAST POSITIVO
+    function displayToast(msg, isError = false) {
+      const toast = document.getElementById('toastMessage');
+      toast.innerText = msg;
+      toast.classList.toggle('error', isError);
+      toast.style.display = 'block';
+      setTimeout(() => { toast.style.display = 'none'; }, 2600);
+    }
+
+    // GESTIÓN DE PUNTUACIÓN
+    function awardPoints(pts) {
+      currentScore += pts;
+      document.getElementById('pointCounter').innerText = currentScore;
+      const newStars = Math.floor(currentScore / 100);
+      if (newStars > currentStars) {
+        currentStars = newStars;
+        document.getElementById('starCounter').innerText = currentStars;
+        playAudioChime('fanfare');
+      }
+    }
+
+    // NAVEGACIÓN
+    function startApp() {
+      buildPortal();
+      resetTimer();
+    }
+
+    function buildPortal() {
+      const container = document.getElementById('lessonsGrid');
+      container.innerHTML = Object.keys(COMPREHENSIVE_DATABASE).map(id => {
+        const l = COMPREHENSIVE_DATABASE[id];
+        return `
+          <div class="mission-card" onclick="startLesson(${id})">
+            <div class="card-top">
+              <span class="mission-badge">Misión #${id}</span>
+              <span style="font-size:1.3rem;">⚡</span>
+            </div>
+            <div class="mission-icon">${l.icon}</div>
+            <div class="mission-title">${l.name}</div>
+            <div class="mission-footer">
+              <span>●</span> ¡Lista para jugar!
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function goToPortal() {
+      document.getElementById('viewPortal').classList.add('active');
+      document.getElementById('viewLesson').classList.remove('active');
+      resetTimer();
+    }
+
+    function startLesson(id) {
+      currentActiveLesson = id;
+      const l = COMPREHENSIVE_DATABASE[id];
+      document.getElementById('viewPortal').classList.remove('active');
+      document.getElementById('viewLesson').classList.add('active');
+      document.getElementById('lessonHeading').innerText = `Lección ${id}: ${l.name} ${l.icon}`;
+      loadGame(1);
+    }
+
+    function loadGame(gameNum) {
+      currentActiveGame = gameNum;
+      resetTimer();
+
+      document.querySelectorAll('.switch-btn').forEach((btn, idx) => {
+        btn.classList.toggle('active', idx === (gameNum - 1));
       });
 
-      const area = document.getElementById('gameArea');
-      if (num === 1) renderFlashcards(area);
-      if (num === 2) renderTrioGame(area);
-      if (num === 3) renderSentenceGame(area);
-      if (num === 4) renderMatchingGame(area);
+      const arena = document.getElementById('gameArena');
+      if (gameNum === 1) setupFlashcards(arena);
+      if (gameNum === 2) setupTrioGame(arena);
+      if (gameNum === 3) setupSentenceGame(arena);
+      if (gameNum === 4) setupMatchingGame(arena);
     }
 
-    // JUEGO 1: FLASHCARDS
-    let fcIndex = 0;
-    function renderFlashcards(area) {
-      const item = SPORTS_DATA[fcIndex];
-      area.innerHTML = `
-        <div class="flashcard-stage" onclick="this.classList.toggle('flipped')">
-          <div class="flashcard-inner">
-            <div class="card-face card-front">
-              <div style="font-size: 6rem; margin-bottom: 20px;">${item.icon}</div>
-              <h3 style="font-size: 2rem; color: #fff;">${item.es}</h3>
-              <p style="color: var(--muted); margin-top: 10px;">(Haz clic para voltear)</p>
+    // ==========================================
+    // JUEGO 1: FLASHCARDS 3D CON AUDIO
+    // ==========================================
+    let cardPointer = 0;
+    function setupFlashcards(arena) {
+      cardPointer = 0;
+      renderCardFace(arena);
+    }
+
+    function renderCardFace(arena) {
+      const items = COMPREHENSIVE_DATABASE[currentActiveLesson].items;
+      if (cardPointer >= items.length) cardPointer = 0;
+      const item = items[cardPointer];
+
+      arena.innerHTML = `
+        <div class="fc-stage" onclick="this.classList.toggle('flipped')">
+          <div class="fc-flipper">
+            <div class="fc-side fc-front">
+              <div class="fc-icon">${item.icon}</div>
+              <div class="fc-word-es">${item.es}</div>
+              <p style="color:var(--text-muted); margin-top:14px; font-size:0.95rem;">(Haz clic para voltear)</p>
             </div>
-            <div class="card-face card-back">
-              <span style="font-size: 0.9rem; color: var(--orange); font-weight:800; text-transform:uppercase;">Significado en inglés</span>
-              <h2 style="font-size: 2.2rem; color: #fff; margin: 16px 0;">${item.en}</h2>
-              <button onclick="event.stopPropagation(); speak('${item.es}')" class="opt-btn" style="background:var(--blue); font-size:1rem;">🔊 Escuchar Español</button>
+            <div class="fc-side fc-back">
+              <span style="font-size:0.85rem; color:var(--orange); font-weight:800; text-transform:uppercase; letter-spacing:1px;">Significado en inglés</span>
+              <div class="fc-word-en">${item.en}</div>
+              <button onclick="event.stopPropagation(); pronounceWord('${item.es}')" class="icon-action-btn" style="background:var(--blue);">
+                🔊 Escuchar Pronunciación
+              </button>
             </div>
           </div>
         </div>
-        <div class="fc-nav">
-          <button class="opt-btn" onclick="prevCard()">◀</button>
-          <span style="align-self:center; font-weight:700;">${fcIndex + 1} / ${SPORTS_DATA.length}</span>
-          <button class="opt-btn" onclick="nextCard()">▶</button>
+        <div class="fc-controls">
+          <button class="icon-action-btn" onclick="slideCard(-1)">◀ Anterior</button>
+          <span style="font-weight:800; color:var(--text-muted); font-size:1.1rem;">${cardPointer + 1} / ${items.length}</span>
+          <button class="icon-action-btn" onclick="slideCard(1)">Siguiente ▶</button>
         </div>
       `;
     }
 
-    function nextCard() {
-      fcIndex = (fcIndex + 1) % SPORTS_DATA.length;
-      renderFlashcards(document.getElementById('gameArea'));
+    function slideCard(delta) {
+      const items = COMPREHENSIVE_DATABASE[currentActiveLesson].items;
+      cardPointer = (cardPointer + delta + items.length) % items.length;
+      renderCardFace(document.getElementById('gameArena'));
     }
 
-    function prevCard() {
-      fcIndex = (fcIndex - 1 + SPORTS_DATA.length) % SPORTS_DATA.length;
-      renderFlashcards(document.getElementById('gameArea'));
-    }
-
+    // ==========================================
     // JUEGO 2: TRÍOS IGUALES (21 CARTAS)
-    let selectedTrio = [];
-    function renderTrioGame(area) {
+    // ==========================================
+    let trioSelection = [];
+    let trioSolvedCount = 0;
+
+    function setupTrioGame(arena) {
+      trioSelection = [];
+      trioSolvedCount = 0;
+      const items = COMPREHENSIVE_DATABASE[currentActiveLesson].items.slice(0, 7);
+      
       let deck = [];
-      SPORTS_DATA.forEach(item => {
-        deck.push({ ...item }, { ...item }, { ...item });
+      items.forEach(it => {
+        deck.push({ ...it }, { ...it }, { ...it });
       });
       deck.sort(() => Math.random() - 0.5);
 
-      area.innerHTML = `
-        <p style="margin-bottom: 16px; color: var(--muted);">Encuentra los <b>3 iguales</b> en el tablero (7 grupos en total):</p>
-        <div class="trio-grid" id="trioBoard"></div>
+      arena.innerHTML = `
+        <div class="trio-board-wrap">
+          <p style="color:var(--text-muted); font-size:1.15rem; font-weight:600;">
+            Encuentra los <b>3 iguales</b> para eliminarlos (7 grupos de 3):
+          </p>
+          <div class="trio-grid" id="trioGrid"></div>
+        </div>
       `;
 
-      const board = document.getElementById('trioBoard');
+      const grid = document.getElementById('trioGrid');
       deck.forEach((card, idx) => {
-        const el = document.createElement('div');
-        el.className = 'trio-card';
-        el.dataset.icon = card.icon;
-        el.dataset.index = idx;
-        el.innerText = '❓';
-        el.onclick = () => handleTrioClick(el, card.icon);
-        board.appendChild(el);
+        const node = document.createElement('div');
+        node.className = 'trio-card';
+        node.dataset.icon = card.icon;
+        node.dataset.name = card.es;
+        node.innerText = '❓';
+        node.onclick = () => onTrioCardClick(node, card);
+        grid.appendChild(node);
       });
     }
 
-    function handleTrioClick(el, icon) {
-      if (el.classList.contains('revealed') || el.classList.contains('matched') || selectedTrio.length >= 3) return;
+    function onTrioCardClick(node, card) {
+      if (node.classList.contains('revealed') || node.classList.contains('matched') || trioSelection.length >= 3) return;
 
-      el.classList.add('revealed');
-      el.innerText = icon;
-      selectedTrio.push(el);
+      node.classList.add('revealed');
+      node.innerText = card.icon;
+      trioSelection.push(node);
 
-      if (selectedTrio.length === 3) {
-        const [c1, c2, c3] = selectedTrio;
-        if (c1.dataset.icon === c2.dataset.icon && c2.dataset.icon === c3.dataset.icon) {
+      if (trioSelection.length === 3) {
+        const [a, b, c] = trioSelection;
+        if (a.dataset.icon === b.dataset.icon && b.dataset.icon === c.dataset.icon) {
           setTimeout(() => {
-            selectedTrio.forEach(c => c.classList.add('matched'));
-            selectedTrio = [];
-            addPoints(50);
-            showToast("¡Trío encontrado! ¡Excelente memoria! 🌟");
-          }, 400);
+            trioSelection.forEach(n => n.classList.add('matched'));
+            trioSelection = [];
+            trioSolvedCount++;
+            playAudioChime('success');
+            awardPoints(50);
+            displayToast("¡Trío completado! ¡Memoria de campeón! 🌟");
+
+            if (trioSolvedCount === 7) {
+              setTimeout(() => {
+                showGameVictory("¡Excelente, has limpiado todo el tablero de tríos!");
+              }, 600);
+            }
+          }, 350);
         } else {
           setTimeout(() => {
-            selectedTrio.forEach(c => {
-              c.classList.remove('revealed');
-              c.innerText = '❓';
+            trioSelection.forEach(n => {
+              n.classList.remove('revealed');
+              n.innerText = '❓';
             });
-            selectedTrio = [];
-            showToast("¡Casi lo tienes! La perseverancia es tu fuerza. ¡Inténtalo de nuevo!");
-          }, 900);
+            trioSelection = [];
+            displayToast("¡Casi lo logras! La perseverancia es la clave. ¡Inténtalo de nuevo!", true);
+          }, 850);
         }
       }
     }
 
-    // JUEGO 3: COMPLETAR LA FRASE
-    function renderSentenceGame(area) {
-      area.innerHTML = `
-        <div class="sentence-container">
-          <div class="sentence-icon">🏀</div>
-          <div class="sentence-text">Chaz lanza el balón a la <span class="blank-space">______</span>.</div>
-          <div class="options-row">
-            <button class="opt-btn" onclick="checkSentence(false)">cuchara</button>
-            <button class="opt-btn" onclick="checkSentence(true)">canasta</button>
-            <button class="opt-btn" onclick="checkSentence(false)">ventana</button>
+    // ==========================================
+    // JUEGO 3: COMPLETAR 4 FRASES EN CADENA
+    // ==========================================
+    let sentenceStage = 0;
+    function setupSentenceGame(arena) {
+      sentenceStage = 0;
+      displayCurrentSentence(arena);
+    }
+
+    function displayCurrentSentence(arena) {
+      const sentences = COMPREHENSIVE_DATABASE[currentActiveLesson].sentences;
+      const s = sentences[sentenceStage];
+
+      arena.innerHTML = `
+        <div class="fill-sentence-box">
+          <div class="step-counter">Frase ${sentenceStage + 1} de 4</div>
+          <div class="sentence-lead-icon">${s.icon}</div>
+          <div class="sentence-stream">
+            ${s.before}<span class="pill-slot" id="slotWord">______</span>${s.after}
+          </div>
+          <div class="answer-chips" id="chipsBox">
+            ${s.opts.map(opt => `
+              <button class="chip-btn" onclick="verifySentenceChoice('${opt}', '${s.answer}')">${opt}</button>
+            `).join('')}
           </div>
         </div>
       `;
     }
 
-    function checkSentence(isCorrect) {
-      if (isCorrect) {
-        addPoints(100);
-        showToast("¡Exacto! ¡Eres una estrella anotando puntos! 🎯");
+    function verifySentenceChoice(chosen, correct) {
+      const slot = document.getElementById('slotWord');
+      if (chosen.toLowerCase() === correct.toLowerCase()) {
+        slot.innerText = chosen;
+        slot.classList.add('filled');
+        pronounceWord(chosen);
+        playAudioChime('success');
+        awardPoints(50);
+
+        displayToast("¡Excelente trabajo, estás progresando! 🔥");
+        document.querySelectorAll('.chip-btn').forEach(b => b.style.pointerEvents = 'none');
+
+        setTimeout(() => {
+          sentenceStage++;
+          const sentences = COMPREHENSIVE_DATABASE[currentActiveLesson].sentences;
+          if (sentenceStage < sentences.length) {
+            displayCurrentSentence(document.getElementById('gameArena'));
+          } else {
+            showGameVictory("¡Misión Cumplida: Completaste las 4 frases con éxito total!");
+          }
+        }, 1400);
+
       } else {
-        showToast("¡Buen intento! Recuerda: ¿en el baloncesto lanzas a la canasta o a la cuchara?");
+        displayToast("¡Buen intento! Respira y persevera, prueba otra opción.", true);
       }
     }
 
-    // JUEGO 4: UNIR PAREJAS
-    let selectedNode = null;
-    function renderMatchingGame(area) {
-      const items = SPORTS_DATA.slice(0, 4);
-      const shuffledWords = [...items].sort(() => Math.random() - 0.5);
+    // ==========================================
+    // JUEGO 4: UNIR 8 PAREJAS EN 2 RONDAS
+    // ==========================================
+    let matchRound = 1;
+    let chosenMatchNode = null;
+    let roundPairsSolved = 0;
 
-      area.innerHTML = `
-        <p style="margin-bottom: 16px; color: var(--muted);">Toca un ícono a la izquierda y luego su palabra en español a la derecha:</p>
-        <div class="match-columns">
-          <div class="match-col">
-            ${items.map(item => `
-              <div class="match-node" data-match="${item.es}" onclick="handleMatch(this, 'left')">
-                <span style="font-size:1.8rem;">${item.icon}</span>
-              </div>
-            `).join('')}
+    function setupMatchingGame(arena) {
+      matchRound = 1;
+      chosenMatchNode = null;
+      roundPairsSolved = 0;
+      buildMatchRound(arena);
+    }
+
+    function buildMatchRound(arena) {
+      roundPairsSolved = 0;
+      chosenMatchNode = null;
+      const allItems = COMPREHENSIVE_DATABASE[currentActiveLesson].items;
+      const roundItems = matchRound === 1 ? allItems.slice(0, 4) : allItems.slice(4, 8);
+      const shuffledNames = [...roundItems].sort(() => Math.random() - 0.5);
+
+      arena.innerHTML = `
+        <div class="match-arena">
+          <div class="match-hud-bar">
+            <span style="color:var(--orange); font-weight:800; font-size:1.15rem;">
+              Ronda ${matchRound} de 2 (4 Parejas)
+            </span>
+            <span style="color:var(--text-muted); font-size:0.95rem;">
+              Toca el dibujo y luego su nombre
+            </span>
           </div>
-          <div class="match-col">
-            ${shuffledWords.map(item => `
-              <div class="match-node" data-match="${item.es}" onclick="handleMatch(this, 'right')">
-                ${item.es}
-              </div>
-            `).join('')}
+
+          <div class="match-columns">
+            <div class="match-col">
+              ${roundItems.map(it => `
+                <div class="match-cell icon-cell" data-link="${it.es}" onclick="onMatchCellClick(this, 'left')">
+                  ${it.icon}
+                </div>
+              `).join('')}
+            </div>
+            <div class="match-col">
+              ${shuffledNames.map(it => `
+                <div class="match-cell word-cell" data-link="${it.es}" onclick="onMatchCellClick(this, 'right')">
+                  ${it.es}
+                </div>
+              `).join('')}
+            </div>
           </div>
         </div>
       `;
     }
 
-    function handleMatch(el, side) {
-      if (el.classList.contains('correct')) return;
+    function onMatchCellClick(cell, side) {
+      if (cell.classList.contains('correct')) return;
 
-      if (!selectedNode) {
-        selectedNode = { el, side };
-        el.classList.add('selected');
+      if (!chosenMatchNode) {
+        chosenMatchNode = { cell, side };
+        cell.classList.add('selected');
       } else {
-        if (selectedNode.side === side) {
-          selectedNode.el.classList.remove('selected');
-          selectedNode = { el, side };
-          el.classList.add('selected');
+        if (chosenMatchNode.side === side) {
+          chosenMatchNode.cell.classList.remove('selected');
+          chosenMatchNode = { cell, side };
+          cell.classList.add('selected');
         } else {
-          if (selectedNode.el.dataset.match === el.dataset.match) {
-            el.classList.add('correct');
-            selectedNode.el.classList.add('correct');
-            selectedNode.el.classList.remove('selected');
-            selectedNode = null;
-            addPoints(25);
-            showToast("¡Pareja conectada con éxito! 🔥");
+          if (chosenMatchNode.cell.dataset.link === cell.dataset.link) {
+            cell.classList.add('correct');
+            chosenMatchNode.cell.classList.add('correct');
+            chosenMatchNode.cell.classList.remove('selected');
+            pronounceWord(cell.dataset.link);
+            playAudioChime('success');
+            awardPoints(25);
+            roundPairsSolved++;
+            chosenMatchNode = null;
+
+            displayToast("¡Conexión perfecta! 🎯");
+
+            if (roundPairsSolved === 4) {
+              setTimeout(() => {
+                if (matchRound === 1) {
+                  matchRound = 2;
+                  displayToast("¡Ronda 1 lista! Preparando Ronda 2...");
+                  buildMatchRound(document.getElementById('gameArena'));
+                } else {
+                  showGameVictory("¡Excelente, has completado esta misión de 8 parejas!");
+                }
+              }, 1000);
+            }
           } else {
-            selectedNode.el.classList.remove('selected');
-            selectedNode = null;
-            showToast("No coinciden esta vez, pero respira y prueba otra pareja. ¡Tú puedes!");
+            chosenMatchNode.cell.classList.remove('selected');
+            chosenMatchNode = null;
+            displayToast("No coinciden esta vez. ¡Respira y vuelve a intentar!", true);
           }
         }
       }
     }
 
-    function addPoints(pts) {
-      currentScore += pts;
-      document.getElementById('pointsCount').innerText = currentScore;
-      if (currentScore % 100 === 0) {
-        currentStars++;
-        document.getElementById('starsCount').innerText = currentStars;
-      }
+    // ==========================================
+    // PANTALLA DE VICTORIA FINAL DEL JUEGO
+    // ==========================================
+    function showGameVictory(message) {
+      haltTimer();
+      playAudioChime('fanfare');
+      awardPoints(100);
+
+      const m = Math.floor(timerTotalSeconds / 60);
+      const s = timerTotalSeconds % 60;
+      const displayTime = m > 0 ? `${m}m ${s}s` : `${s} segundos`;
+
+      const arena = document.getElementById('gameArena');
+      arena.innerHTML = `
+        <div class="victory-box">
+          <div class="trophy-bounce">🏆</div>
+          <div class="victory-title">${message}</div>
+          <div class="time-stat">⏱️ ¡Excelente tiempo: ${displayTime}!</div>
+          <p style="color:var(--text-muted); font-size:1.2rem; margin-bottom:28px;">
+            ¡Gran concentración y reflejos de titán!
+          </p>
+          <button class="chip-btn" onclick="loadGame(1)" style="background:var(--orange); border-color:var(--orange);">
+            Jugar otra misión 🚀
+          </button>
+        </div>
+      `;
     }
 
-    function showToast(msg) {
-      const t = document.getElementById('toast');
-      t.innerText = msg;
-      t.style.display = 'block';
-      setTimeout(() => { t.style.display = 'none'; }, 2800);
-    }
-
-    function speak(text) {
-      if ('speechSynthesis' in window) {
-        const u = new SpeechSynthesisUtterance(text);
-        u.lang = 'es-ES';
-        window.speechSynthesis.speak(u);
-      }
-    }
-
-    window.onload = init;
+    window.onload = startApp;
   </script>
 </body>
 </html>
