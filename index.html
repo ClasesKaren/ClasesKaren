@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aventura en Español - Aprende Jugando</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --card-border: #334155;
+      --orange: #f97316;
+      --green: #10b981;
+      --blue: #0ea5e9;
+      --purple: #8b5cf6;
+      --yellow: #f59e0b;
+      --red: #ef4444;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      user-select: none;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: rgba(30, 41, 59, 0.8);
+      backdrop-filter: blur(10px);
+      border-bottom: 2px solid var(--card-border);
+      padding: 16px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--orange);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+
+    .score-board {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      background: var(--bg);
+      padding: 8px 18px;
+      border-radius: 999px;
+      border: 1px solid var(--card-border);
+    }
+
+    .score-item {
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    main {
+      flex: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+      padding: 32px 20px;
+    }
+
+    /* VISTA DE LECCIONES (PORTAL) */
+    .view { display: none; }
+    .view.active { display: block; }
+
+    .hero-title {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .hero-title h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 2.5rem;
+      margin-bottom: 8px;
+    }
+
+    .hero-title p {
+      color: var(--muted);
+      font-size: 1.1rem;
+    }
+
+    .lessons-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 20px;
+    }
+
+    .lesson-card {
+      background: var(--card-bg);
+      border: 2px solid var(--card-border);
+      border-radius: 20px;
+      padding: 24px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .lesson-card:hover {
+      transform: translateY(-6px);
+      border-color: var(--orange);
+      box-shadow: 0 12px 30px rgba(249, 115, 22, 0.2);
+    }
+
+    .lesson-badge {
+      font-size: 0.8rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--blue);
+    }
+
+    .lesson-icon {
+      font-size: 3rem;
+    }
+
+    .lesson-name {
+      font-size: 1.25rem;
+      font-weight: 800;
+    }
+
+    .lesson-status {
+      font-size: 0.85rem;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* VISTA DE JUEGOS DE LA LECCIÓN */
+    .game-nav {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .tab-btn {
+      background: var(--card-bg);
+      border: 2px solid var(--card-border);
+      color: var(--muted);
+      padding: 12px 20px;
+      border-radius: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tab-btn.active {
+      background: var(--orange);
+      color: #fff;
+      border-color: var(--orange);
+    }
+
+    .game-box {
+      background: var(--card-bg);
+      border: 2px solid var(--card-border);
+      border-radius: 24px;
+      padding: 32px;
+      min-height: 480px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .back-btn {
+      align-self: flex-start;
+      margin-bottom: 16px;
+      background: none;
+      border: none;
+      color: var(--blue);
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    /* JUEGO 1: FLASHCARDS */
+    .flashcard-stage {
+      perspective: 1000px;
+      width: 320px;
+      height: 380px;
+      cursor: pointer;
+    }
+
+    .flashcard-inner {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+      border-radius: 24px;
+    }
+
+    .flashcard-stage.flipped .flashcard-inner {
+      transform: rotateY(180deg);
+    }
+
+    .card-face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 24px;
+      border: 3px solid var(--card-border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+    }
+
+    .card-front {
+      background: linear-gradient(145deg, #1e293b, #0f172a);
+    }
+
+    .card-back {
+      background: linear-gradient(145deg, #0f172a, #1e293b);
+      transform: rotateY(180deg);
+      border-color: var(--orange);
+    }
+
+    .fc-nav {
+      display: flex;
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    /* JUEGO 2: TABLERO 21 CARTAS (TRÍOS) */
+    .trio-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 10px;
+      width: 100%;
+      max-width: 800px;
+    }
+
+    .trio-card {
+      aspect-ratio: 1;
+      background: var(--bg);
+      border: 2px solid var(--card-border);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .trio-card.revealed {
+      background: #334155;
+      border-color: var(--blue);
+    }
+
+    .trio-card.matched {
+      background: rgba(16, 185, 129, 0.2);
+      border-color: var(--green);
+      cursor: default;
+      opacity: 0.6;
+    }
+
+    /* JUEGO 3: COMPLETAR LA FRASE */
+    .sentence-container {
+      text-align: center;
+      max-width: 650px;
+    }
+
+    .sentence-icon { font-size: 5rem; margin-bottom: 16px; }
+    .sentence-text { font-size: 1.8rem; font-weight: 700; margin-bottom: 24px; }
+    .blank-space { color: var(--orange); border-bottom: 3px dashed var(--orange); padding: 0 10px; }
+
+    .options-row {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .opt-btn {
+      background: var(--bg);
+      border: 2px solid var(--card-border);
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 14px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .opt-btn:hover { border-color: var(--blue); }
+
+    /* JUEGO 4: UNIR PAREJAS */
+    .match-columns {
+      display: flex;
+      justify-content: space-between;
+      gap: 40px;
+      width: 100%;
+      max-width: 600px;
+    }
+
+    .match-col {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      flex: 1;
+    }
+
+    .match-node {
+      background: var(--bg);
+      border: 2px solid var(--card-border);
+      padding: 16px;
+      border-radius: 14px;
+      text-align: center;
+      font-weight: 700;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .match-node.selected { border-color: var(--orange); background: rgba(249, 115, 22, 0.15); }
+    .match-node.correct { border-color: var(--green); background: rgba(16, 185, 129, 0.2); pointer-events: none; }
+
+    /* MENSAJE FLOTANTE (TOAST) */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--orange);
+      color: white;
+      padding: 14px 28px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 1.1rem;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+      display: none;
+      z-index: 1000;
+      animation: pop 0.3s ease;
+    }
+
+    @keyframes pop {
+      0% { transform: translate(-50%, 20px); opacity: 0; }
+      100% { transform: translate(-50%, 0); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo" onclick="showPortal()">
+      <span>🏆</span> Aventura en Español
+    </div>
+    <div class="score-board">
+      <div class="score-item">⭐ <span id="starsCount">0</span></div>
+      <div class="score-item">🔥 <span id="pointsCount">0</span> Pts</div>
+    </div>
+  </header>
+
+  <main>
+    <!-- PORTAL CON LAS 23 LECCIONES -->
+    <section id="portalView" class="view active">
+      <div class="hero-title">
+        <h1>¡Elige tu Misión de Hoy!</h1>
+        <p>Aprende palabras, supera retos y conviértete en un Titán del Español</p>
+      </div>
+      <div class="lessons-grid" id="lessonsContainer"></div>
+    </section>
+
+    <!-- PANTALLA DE JUEGOS DE LA LECCIÓN -->
+    <section id="lessonView" class="view">
+      <button class="back-btn" onclick="showPortal()">◀ Volver a todas las lecciones</button>
+      <h2 id="lessonTitle" style="margin-bottom: 16px; font-size: 2rem;">Lección</h2>
+
+      <div class="game-nav">
+        <button class="tab-btn active" onclick="switchGame(1)">1. Tarjetas 3D</button>
+        <button class="tab-btn" onclick="switchGame(2)">2. Tríos Iguales (21)</button>
+        <button class="tab-btn" onclick="switchGame(3)">3. Completa la Frase</button>
+        <button class="tab-btn" onclick="switchGame(4)">4. Unir Parejas</button>
+      </div>
+
+      <div class="game-box" id="gameArea"></div>
+    </section>
+  </main>
+
+  <div id="toast"></div>
+
+  <script>
+    // BASE DE DATOS DE LAS 23 LECCIONES
+    const LESSONS = [
+      { id: 1, name: "Deportes", icon: "🏀", active: true },
+      { id: 2, name: "Partes de la Casa", icon: "🏡", active: false },
+      { id: 3, name: "Cuerpo Humano", icon: "🏃‍♂️", active: false },
+      { id: 4, name: "Los Animales", icon: "🦁", active: false },
+      { id: 5, name: "Los Colores", icon: "🎨", active: false },
+      { id: 6, name: "Los Números", icon: "🔢", active: false },
+      { id: 7, name: "El Abecedario", icon: "🔤", active: false },
+      { id: 8, name: "Saludos y Presentaciones", icon: "👋", active: false },
+      { id: 9, name: "Cosas de la Cocina", icon: "🍳", active: false },
+      { id: 10, name: "Cosas del Cuarto", icon: "🛏️", active: false },
+      { id: 11, name: "Cosas del Auto", icon: "🚗", active: false },
+      { id: 12, name: "Cosas del Colegio", icon: "🎒", active: false },
+      { id: 13, name: "Cosas del Fútbol", icon: "⚽", active: false },
+      { id: 14, name: "Cosas del Baloncesto", icon: "🏀", active: false },
+      { id: 15, name: "Fútbol Americano", icon: "🏈", active: false },
+      { id: 16, name: "Cosas del Voleibol", icon: "🏐", active: false },
+      { id: 17, name: "Cosas de la Música", icon: "🎵", active: false },
+      { id: 18, name: "Viajar en Avión", icon: "✈️", active: false },
+      { id: 19, name: "Viajar en Bus", icon: "🚌", active: false },
+      { id: 20, name: "El Supermercado", icon: "🛒", active: false },
+      { id: 21, name: "Tienda de Ropa", icon: "👕", active: false },
+      { id: 22, name: "Ir al Cine", icon: "🍿", active: false },
+      { id: 23, name: "Cocinar", icon: "👨‍🍳", active: false }
+    ];
+
+    // DATOS LECCIÓN 1: DEPORTES
+    const SPORTS_DATA = [
+      { es: "El Balón", en: "The Ball", icon: "⚽" },
+      { es: "La Canasta", en: "The Hoop", icon: "🏀" },
+      { es: "El Fútbol Americano", en: "Football", icon: "🏈" },
+      { es: "El Campo", en: "The Field", icon: "🏟️" },
+      { es: "El Jugador", en: "The Player", icon: "🏃" },
+      { es: "El Trofeo", en: "The Trophy", icon: "🏆" },
+      { es: "La Medalla", en: "The Medal", icon: "🏅" }
+    ];
+
+    let currentScore = 0;
+    let currentStars = 0;
+    let activeLesson = 1;
+    let currentGame = 1;
+
+    function init() {
+      renderPortal();
+    }
+
+    function renderPortal() {
+      const container = document.getElementById('lessonsContainer');
+      container.innerHTML = LESSONS.map(l => `
+        <div class="lesson-card" onclick="openLesson(${l.id})">
+          <div class="lesson-badge">Misión #${l.id}</div>
+          <div class="lesson-icon">${l.icon}</div>
+          <div class="lesson-name">${l.name}</div>
+          <div class="lesson-status">${l.id === 1 ? '🔥 ¡Disponible para jugar!' : '🔒 Próximamente'}</div>
+        </div>
+      `).join('');
+    }
+
+    function showPortal() {
+      document.getElementById('portalView').classList.add('active');
+      document.getElementById('lessonView').classList.remove('active');
+    }
+
+    function openLesson(id) {
+      if (id !== 1) {
+        showToast("¡Esta lección se desbloqueará pronto! Prueba la Lección 1.");
+        return;
+      }
+      activeLesson = id;
+      document.getElementById('portalView').classList.remove('active');
+      document.getElementById('lessonView').classList.add('active');
+      document.getElementById('lessonTitle').innerText = `Lección ${id}: Deportes 🏀`;
+      switchGame(1);
+    }
+
+    function switchGame(num) {
+      currentGame = num;
+      document.querySelectorAll('.tab-btn').forEach((btn, idx) => {
+        btn.classList.toggle('active', idx === (num - 1));
+      });
+
+      const area = document.getElementById('gameArea');
+      if (num === 1) renderFlashcards(area);
+      if (num === 2) renderTrioGame(area);
+      if (num === 3) renderSentenceGame(area);
+      if (num === 4) renderMatchingGame(area);
+    }
+
+    // JUEGO 1: FLASHCARDS
+    let fcIndex = 0;
+    function renderFlashcards(area) {
+      const item = SPORTS_DATA[fcIndex];
+      area.innerHTML = `
+        <div class="flashcard-stage" onclick="this.classList.toggle('flipped')">
+          <div class="flashcard-inner">
+            <div class="card-face card-front">
+              <div style="font-size: 6rem; margin-bottom: 20px;">${item.icon}</div>
+              <h3 style="font-size: 2rem; color: #fff;">${item.es}</h3>
+              <p style="color: var(--muted); margin-top: 10px;">(Haz clic para voltear)</p>
+            </div>
+            <div class="card-face card-back">
+              <span style="font-size: 0.9rem; color: var(--orange); font-weight:800; text-transform:uppercase;">Significado en inglés</span>
+              <h2 style="font-size: 2.2rem; color: #fff; margin: 16px 0;">${item.en}</h2>
+              <button onclick="event.stopPropagation(); speak('${item.es}')" class="opt-btn" style="background:var(--blue); font-size:1rem;">🔊 Escuchar Español</button>
+            </div>
+          </div>
+        </div>
+        <div class="fc-nav">
+          <button class="opt-btn" onclick="prevCard()">◀</button>
+          <span style="align-self:center; font-weight:700;">${fcIndex + 1} / ${SPORTS_DATA.length}</span>
+          <button class="opt-btn" onclick="nextCard()">▶</button>
+        </div>
+      `;
+    }
+
+    function nextCard() {
+      fcIndex = (fcIndex + 1) % SPORTS_DATA.length;
+      renderFlashcards(document.getElementById('gameArea'));
+    }
+
+    function prevCard() {
+      fcIndex = (fcIndex - 1 + SPORTS_DATA.length) % SPORTS_DATA.length;
+      renderFlashcards(document.getElementById('gameArea'));
+    }
+
+    // JUEGO 2: TRÍOS IGUALES (21 CARTAS)
+    let selectedTrio = [];
+    function renderTrioGame(area) {
+      let deck = [];
+      SPORTS_DATA.forEach(item => {
+        deck.push({ ...item }, { ...item }, { ...item });
+      });
+      deck.sort(() => Math.random() - 0.5);
+
+      area.innerHTML = `
+        <p style="margin-bottom: 16px; color: var(--muted);">Encuentra los <b>3 iguales</b> en el tablero (7 grupos en total):</p>
+        <div class="trio-grid" id="trioBoard"></div>
+      `;
+
+      const board = document.getElementById('trioBoard');
+      deck.forEach((card, idx) => {
+        const el = document.createElement('div');
+        el.className = 'trio-card';
+        el.dataset.icon = card.icon;
+        el.dataset.index = idx;
+        el.innerText = '❓';
+        el.onclick = () => handleTrioClick(el, card.icon);
+        board.appendChild(el);
+      });
+    }
+
+    function handleTrioClick(el, icon) {
+      if (el.classList.contains('revealed') || el.classList.contains('matched') || selectedTrio.length >= 3) return;
+
+      el.classList.add('revealed');
+      el.innerText = icon;
+      selectedTrio.push(el);
+
+      if (selectedTrio.length === 3) {
+        const [c1, c2, c3] = selectedTrio;
+        if (c1.dataset.icon === c2.dataset.icon && c2.dataset.icon === c3.dataset.icon) {
+          setTimeout(() => {
+            selectedTrio.forEach(c => c.classList.add('matched'));
+            selectedTrio = [];
+            addPoints(50);
+            showToast("¡Trío encontrado! ¡Excelente memoria! 🌟");
+          }, 400);
+        } else {
+          setTimeout(() => {
+            selectedTrio.forEach(c => {
+              c.classList.remove('revealed');
+              c.innerText = '❓';
+            });
+            selectedTrio = [];
+            showToast("¡Casi lo tienes! La perseverancia es tu fuerza. ¡Inténtalo de nuevo!");
+          }, 900);
+        }
+      }
+    }
+
+    // JUEGO 3: COMPLETAR LA FRASE
+    function renderSentenceGame(area) {
+      area.innerHTML = `
+        <div class="sentence-container">
+          <div class="sentence-icon">🏀</div>
+          <div class="sentence-text">Chaz lanza el balón a la <span class="blank-space">______</span>.</div>
+          <div class="options-row">
+            <button class="opt-btn" onclick="checkSentence(false)">cuchara</button>
+            <button class="opt-btn" onclick="checkSentence(true)">canasta</button>
+            <button class="opt-btn" onclick="checkSentence(false)">ventana</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function checkSentence(isCorrect) {
+      if (isCorrect) {
+        addPoints(100);
+        showToast("¡Exacto! ¡Eres una estrella anotando puntos! 🎯");
+      } else {
+        showToast("¡Buen intento! Recuerda: ¿en el baloncesto lanzas a la canasta o a la cuchara?");
+      }
+    }
+
+    // JUEGO 4: UNIR PAREJAS
+    let selectedNode = null;
+    function renderMatchingGame(area) {
+      const items = SPORTS_DATA.slice(0, 4);
+      const shuffledWords = [...items].sort(() => Math.random() - 0.5);
+
+      area.innerHTML = `
+        <p style="margin-bottom: 16px; color: var(--muted);">Toca un ícono a la izquierda y luego su palabra en español a la derecha:</p>
+        <div class="match-columns">
+          <div class="match-col">
+            ${items.map(item => `
+              <div class="match-node" data-match="${item.es}" onclick="handleMatch(this, 'left')">
+                <span style="font-size:1.8rem;">${item.icon}</span>
+              </div>
+            `).join('')}
+          </div>
+          <div class="match-col">
+            ${shuffledWords.map(item => `
+              <div class="match-node" data-match="${item.es}" onclick="handleMatch(this, 'right')">
+                ${item.es}
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function handleMatch(el, side) {
+      if (el.classList.contains('correct')) return;
+
+      if (!selectedNode) {
+        selectedNode = { el, side };
+        el.classList.add('selected');
+      } else {
+        if (selectedNode.side === side) {
+          selectedNode.el.classList.remove('selected');
+          selectedNode = { el, side };
+          el.classList.add('selected');
+        } else {
+          if (selectedNode.el.dataset.match === el.dataset.match) {
+            el.classList.add('correct');
+            selectedNode.el.classList.add('correct');
+            selectedNode.el.classList.remove('selected');
+            selectedNode = null;
+            addPoints(25);
+            showToast("¡Pareja conectada con éxito! 🔥");
+          } else {
+            selectedNode.el.classList.remove('selected');
+            selectedNode = null;
+            showToast("No coinciden esta vez, pero respira y prueba otra pareja. ¡Tú puedes!");
+          }
+        }
+      }
+    }
+
+    function addPoints(pts) {
+      currentScore += pts;
+      document.getElementById('pointsCount').innerText = currentScore;
+      if (currentScore % 100 === 0) {
+        currentStars++;
+        document.getElementById('starsCount').innerText = currentStars;
+      }
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.innerText = msg;
+      t.style.display = 'block';
+      setTimeout(() => { t.style.display = 'none'; }, 2800);
+    }
+
+    function speak(text) {
+      if ('speechSynthesis' in window) {
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = 'es-ES';
+        window.speechSynthesis.speak(u);
+      }
+    }
+
+    window.onload = init;
+  </script>
+</body>
+</html>
